@@ -1,0 +1,18 @@
+<ng-container *ngIf="needSoloFocus()">
+  <router-outlet></router-outlet>
+</ng-container>
+<ng-container *ngIf="!needSoloFocus()">
+  <div class="flex flex-col h-screen">
+    <div class="grid grid-cols-9 h-full w-full">
+      <div class="grid-rows-1 col-start-1 col-end-10">
+        <app-header></app-header>
+      </div>
+      <div class="col-start-2 col-end-3 self-center">
+        <app-navbar></app-navbar>
+      </div>
+      <div class="col-start-3 grow col-end-10 overflow-auto content pt-10 m-10">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,27 @@
+<div class="w-full text-slate-300 border-secondary border rounded-2xl font-mono">
+  <!--  <h2 class="text-center p-2 text-lg">{{title}}</h2>-->
+  <div class="p-5 w-full">
+    <div class="flex gap-2 w-full justify-between text-amber-400 text-2xl">
+      <div>5★ Pity</div>
+      <div>{{lastPity(5)}}</div>
+    </div>
+    <div class="flex gap-2 w-full justify-between text-purple-400 text-2xl ">
+      <div>4★ Pity</div>
+      <div>{{lastPity(4 )}}</div>
+    </div>
+    <div>{{'4★ Pity' + lastPity(5)}}</div>
+    <div>{{'Guaranteed at 90 ' + lastPity(5)}}</div>
+  </div>
+  <button class="w-full" (click)="toggleContent(content)">Collapse</button>
+  <div #content class="content text-white hidden transition p-5">
+    <table class="w-full">
+      <tr *ngFor="let pull of pulls; index as i"
+          class="w-full text-sm text-pur border-t border-b border-opacity-50 border-amber-300">
+        <td class="p-2" [class.text-purple-400]="pull.rank_type == 4"
+            [class.text-amber-400]="pull.rank_type == 5">{{pull.name}}</td>
+        <td>{{pull.time}}</td>
+        <td *ngIf="pull.rank_type > 3">{{lastPityFrom(pull.rank_type, i)}}</td>
+      </tr>
+    </table>
+  </div>
+</div>

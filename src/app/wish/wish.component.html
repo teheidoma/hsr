@@ -1,0 +1,26 @@
+<div class="w-full flex flex-col items-center text-slate-300">
+  <h1 class="font-regular pb-5">{{getSelectedBannerName()}}</h1>
+  <div class="w-full flex flex-col items-center gap-2">
+    <div class="border border-secondary font-mono rounded-lg p-2 hover:border-slate-400 hover:shadow-xl transition"
+         *ngIf="banners.length > 1"
+         (click)="selectBanner(null)">Total {{pulls.length}}</div>
+    <div *ngIf="banners.length > 1" class="flex gap-2">
+      <div class="border border-secondary font-mono rounded-lg p-2 hover:border-slate-400 hover:shadow-xl transition"
+           (click)="selectBanner(banner.id)"
+           *ngFor="let banner of this.getSortedBanners()">{{banner.name}} {{countPullsForBanner(banner)}}</div>
+    </div>
+    <div class="w-full p-2 grid grid-cols-3 items-center justify-items-center justify-center">
+      <ng-container *ngIf="selectedBanner">
+        <app-wish-featured [banner]="selectedBanner" class="w-52"></app-wish-featured>
+      </ng-container>
+      <app-wish-banner [pulls]="pulls" [banner]="selectedBanner" [banners]="banners" class="w-60"></app-wish-banner>
+      <ng-container *ngIf="banners.length == 0 || (banners.length > 0 && !selectedBanner )">
+
+      </ng-container>
+      <app-wish-last-legendary [banners]="banners" [pulls]="pulls"
+                               [banner]="selectedBanner"></app-wish-last-legendary>
+    </div>
+    <app-wish-ratio [pulls]="pulls"></app-wish-ratio>
+    <app-wish-table class="w-full" [pulls]="pulls" [banner]="selectedBanner"></app-wish-table>
+  </div>
+</div>
