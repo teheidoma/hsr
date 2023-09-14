@@ -9,11 +9,15 @@ import { WishComponent } from './wish/wish.component';
 import {SharedModule} from "./shared/shared.module";
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {RegistrationModule} from "./registartion/registration.module";
+import { ErrorComponent } from './error/error.component';
+import { UpdateComponent } from './update/update.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WishComponent
+    WishComponent,
+    ErrorComponent,
+    UpdateComponent
   ],
   imports: [
     BrowserModule,

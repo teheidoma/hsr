@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Pull} from "../../../model/pull";
 import {Chart} from 'chart.js/auto';
 import {HonkaiService} from "../../../../service/honkai.service";
+import {SelectedBanner} from "../../../model/selectedBanner";
 
 @Component({
   selector: 'app-wish-ratio',
@@ -10,7 +11,7 @@ import {HonkaiService} from "../../../../service/honkai.service";
 })
 export class WishRatioComponent implements OnInit {
   @Input()
-  public pulls: Pull[] = [];
+  public selectedBanner: SelectedBanner | undefined = undefined;
   public chart: any;
 
 
@@ -30,10 +31,11 @@ export class WishRatioComponent implements OnInit {
         ]
       },
       options: {
+        responsive: true,
         borderColor: '#38393d',
         plugins: {
           legend: {
-            position: 'right'
+            position: 'left'
           }
         }
       }

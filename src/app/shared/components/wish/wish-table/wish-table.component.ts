@@ -1,10 +1,14 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, NgZone, OnInit} from '@angular/core';
 import {Utils} from '../../../utils';
 import {faStar} from '@fortawesome/free-solid-svg-icons';
 import {Pull} from "../../../model/pull";
 import {Banner} from "../../../model/banner";
 import {HonkaiService} from "../../../../service/honkai.service";
 import {formatDate} from "@angular/common";
+import {SelectedBanner} from "../../../model/selectedBanner";
+import {filter, flatMap, map, mergeMap, Observable, of} from "rxjs";
+import {registrationRoutes} from "../../../../registartion/registration.module";
+import {Banners} from "../../../model/banners";
 
 
 @Component({
@@ -12,18 +16,41 @@ import {formatDate} from "@angular/common";
   templateUrl: './wish-table.component.html',
   styleUrls: ['./wish-table.component.css']
 })
-export class WishTableComponent {
+export class WishTableComponent implements OnInit {
   @Input()
-  public pulls: Pull[] = [];
-  @Input()
-  public banner: Banner | undefined;
+  public selectedBanner: SelectedBanner | undefined;
   public selectedRanks = [5, 4, 3];
   faStar = faStar;
+  pulls: Pull[] = [];
 
-  constructor(private honkaiService: HonkaiService) {
-
+  constructor(private honkaiService: HonkaiService,
+              private ngZone: NgZone) {
   }
 
+  ngOnInit(): void {
+    this.honkaiService.getPulls(false, 'wish-table')
+      .subscribe(pulls => {
+        let result: Pull[] = [];
+        if (this.selectedBanner) {
+          console.log('table', this.selectedBanner)
+          result = pulls.filter(pull => pull.gacha_type === this.selectedBanner?.bannerType);
+        }
+        this.pulls = result
+      })
+  }
+
+
+  getPulls() {
+    return this.pulls.filter(pull => this.selectedRanks.indexOf(pull.rank_type) !== -1)
+  }
+
+  getBannerName(pull: Pull) {
+    let name = Banners.banners.find(banner => banner.id == pull.gacha_id)?.name;
+    if (name == null) {
+      return ''
+    }
+    return name;
+  }
 
   public lastPity(rank: number): number {
     const pity = this.pulls.findIndex(p => p.rank_type == rank) + 1;
@@ -43,17 +70,6 @@ export class WishTableComponent {
 
   findIconForPull(pull: Pull) {
     return this.honkaiService.getAsset(pull, true);
-  }
-
-  getFilteredPulls() {
-    let pulls: Pull[];
-    if (this.banner) {
-      pulls = this.pulls.filter(pull => pull.gacha_id === this.banner?.id);
-      // pulls = this.pulls;
-    } else {
-      pulls = this.pulls;
-    }
-    return pulls.filter(pull => this.selectedRanks.indexOf(pull.rank_type) !== -1);
   }
 
 
@@ -81,6 +97,7 @@ export class WishTableComponent {
       return '';
     }
   }
+
 
   protected readonly formatDate = formatDate;
 }

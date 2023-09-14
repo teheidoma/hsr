@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {Banner} from "../../../model/banner";
 import {HonkaiService} from "../../../../service/honkai.service";
+import {SelectedBanner} from "../../../model/selectedBanner";
 
 @Component({
   selector: 'app-wish-featured',
@@ -9,7 +10,7 @@ import {HonkaiService} from "../../../../service/honkai.service";
 })
 export class WishFeaturedComponent {
   @Input()
-  banner: Banner | undefined;
+  banner: SelectedBanner | undefined;
 
   constructor(private honkaiService: HonkaiService) {
   }

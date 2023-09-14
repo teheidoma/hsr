@@ -1,43 +1,46 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {faStar} from "@fortawesome/free-solid-svg-icons";
 import {Banner} from "../../../model/banner";
 import {HonkaiService} from "../../../../service/honkai.service";
 import {Pull} from "../../../model/pull";
 import {Utils} from "../../../utils";
 import {Banners} from "../../../model/banners";
+import {SelectedBanner} from "../../../model/selectedBanner";
+import {flatMap, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-wish-last-legendary',
   templateUrl: './wish-last-legendary.component.html',
   styleUrls: ['./wish-last-legendary.component.scss']
 })
-export class WishLastLegendaryComponent {
+export class WishLastLegendaryComponent implements OnInit {
   @Input()
-  pulls: Pull[] = [];
-  @Input()
-  banner: Banner | undefined;
-  @Input()
-  banners: Banner[] = [];
+  selectedBanner: SelectedBanner | undefined;
   faStar = faStar;
+  private pulls: Pull[] = [];
 
   constructor(private honkaiService: HonkaiService) {
+
+  }
+
+  ngOnInit(): void {
+    this.honkaiService.getPulls(false, 'wish-last-legendary')
+      .subscribe(pulls => this.pulls = pulls)
   }
 
   filteredPulls() {
-    let pulls = [];
-    if (this.banner) {
-      pulls = this.pulls.filter(pull => pull.gacha_id === this.banner?.id);
+    let result: Pull[] = [];
+    if (this.selectedBanner) {
+      result = this.pulls.filter(pull => pull.gacha_type == this.selectedBanner?.bannerType)
     } else {
-      if (this.banners.length > 0) {
-        pulls = this.pulls.filter(pull => pull.gacha_type === this.banners[0].type);
-      } else {
-        pulls = this.pulls;
-      }
+      result = this.pulls;
     }
-    return pulls.filter(p => p.rank_type === 5);
+
+
+    return result.filter(p => p.rank_type === 5).sort((a, b) => b.id - a.id);
   }
 
-  getPityFrom(pull: Pull) {
+  getPityFrom(pull: Pull): number {
     return Utils.lastPityFrom(this.pulls, pull);
   }
 
@@ -50,20 +53,22 @@ export class WishLastLegendaryComponent {
   }
 
   isWin5050(pull: Pull) {
-    let fpulls = this.pulls.filter(p => p.gacha_type == this.banners[0].type && p.rank_type == 5);
-    console.log('win5050', fpulls)
-    let current = fpulls.findIndex(p => p.id == pull.id)
-    if (current == fpulls.length) {
-      return false;
-    }
-    console.log('win5050', current, fpulls[current], fpulls[current + 1]);
-    console.log('win5050', current, this.filteredPulls());
-    return !this.isStandard(fpulls[current + 1]) && this.isGuaranteed(pull);
+    // let fpulls = this.pulls.filter(p => p.gacha_type == this.banners[0].type && p.rank_type == 5);
+    // console.log('win5050', fpulls)
+    // let current = fpulls.findIndex(p => p.id == pull.id)
+    // if (current == fpulls.length) {
+    //   return false;
+    // }
+    // console.log('win5050', current, fpulls[current], fpulls[current + 1]);
+    // console.log('win5050', current, this.filteredPulls());
+    // return !this.isStandard(fpulls[current + 1]) && this.isGuaranteed(pull);
+    return false;
   }
 
   isStandard(pull: Pull) {
     return Banners.banners.find(b => b.legendaryId == pull?.name.toLowerCase()) == undefined;
   }
+
   isGuaranteed(pull: Pull): boolean {
     console.log('garant', pull?.name,
       pull?.gacha_id,
@@ -72,35 +77,35 @@ export class WishLastLegendaryComponent {
     return Banners.banners.find(b => b.legendaryId === pull?.name.toLowerCase()) != undefined;
   }
 
-  // isGuaranteed(pull: Pull): boolean|null {
-  //   let filtered = this.pulls
-  //     .filter(fpull => fpull.rank_type === 5)
-  //     .filter(fpull => {
-  //       if (this.banner) {
-  //         return fpull.gacha_type === this.banner.type;
-  //       } else {
-  //         if (this.banners.length > 0) {
-  //           return fpull.gacha_type === this.banners[0].type;
-  //         } else {
-  //           return true;
-  //         }
-  //       }
-  //     });
-  //
-  //   let index = filtered.indexOf(pull);
-  //   console.log('lastlegendary', filtered);
-  //   console.log('lastlegendary', pull);
-  //   // console.log('pity', pull, filtered[index - 1]);
-  //   //TODO
-  //   // console.log('pity', Banners.banners.find(b => b.id === pull.gacha_id)?.legendaryId);
-  //
-  //   // return Banners.banners.find(b => b.id === pull.gacha_id)?.legendaryId! === pull.id;
-  //   if (this.banner) {
-  //     return this.banner.id == pull.gacha_id && this.banner.legendaryId == pull.name;
-  //   } else if (this.banners.length > 0){
-  //     return this.banners[0].id == pull.gacha_id && this.banners[0].legendaryId == pull.name;
-  //   } else {
-  //     return null;
-  //   }
-  // }
+// isGuaranteed(pull: Pull): boolean|null {
+//   let filtered = this.pulls
+//     .filter(fpull => fpull.rank_type === 5)
+//     .filter(fpull => {
+//       if (this.banner) {
+//         return fpull.gacha_type === this.banner.type;
+//       } else {
+//         if (this.banners.length > 0) {
+//           return fpull.gacha_type === this.banners[0].type;
+//         } else {
+//           return true;
+//         }
+//       }
+//     });
+//
+//   let index = filtered.indexOf(pull);
+//   console.log('lastlegendary', filtered);
+//   console.log('lastlegendary', pull);
+//   // console.log('pity', pull, filtered[index - 1]);
+//   //TODO
+//   // console.log('pity', Banners.banners.find(b => b.id === pull.gacha_id)?.legendaryId);
+//
+//   // return Banners.banners.find(b => b.id === pull.gacha_id)?.legendaryId! === pull.id;
+//   if (this.banner) {
+//     return this.banner.id == pull.gacha_id && this.banner.legendaryId == pull.name;
+//   } else if (this.banners.length > 0){
+//     return this.banners[0].id == pull.gacha_id && this.banners[0].legendaryId == pull.name;
+//   } else {
+//     return null;
+//   }
+// }
 }

@@ -1,8 +1,7 @@
-<div class="h-full flex flex-col justify-center gap-2">
+<div class="h-full grid grid-rows-3 grid-flow-col justify-center gap-2 p-5">
   <ng-container class="h-full" *ngFor="let pull of filteredPulls()">
     <div class="font-regular font-bold text-amber-400 flex items-center gap-2">
-      <img class="w-10 h-10 rounded-full" src="{{getImg(pull)}}"
-           alt="">
+      <img class="w-10 h-10 rounded-full" src="{{getImg(pull)}}" alt="">
 <!--      <ng-container *ngIf="isGuaranteed(pull) != null">-->
 <!--      <app-tooltip class="w-40 fixed top-1/2" #elem [tooltip]="'win'"></app-tooltip>-->
       <fa-icon [icon]="faStar" [class.text-red-600]="!isWin5050(pull)"

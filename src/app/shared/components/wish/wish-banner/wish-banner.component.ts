@@ -1,26 +1,36 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Pull} from "../../../model/pull";
 import {Utils} from "../../../utils";
 import {Banner} from "../../../model/banner";
+import {SelectedBanner} from "../../../model/selectedBanner";
+import {HonkaiService} from "../../../../service/honkai.service";
+import {map, Observable} from "rxjs";
 
 @Component({
   selector: 'app-wish-banner',
   templateUrl: './wish-banner.component.html',
   styleUrls: ['./wish-banner.component.scss']
 })
-export class WishBannerComponent {
+export class WishBannerComponent implements OnInit {
   @Input()
-  public pulls: Pull[] = [];
+  public selectedBanner: SelectedBanner | undefined;
 
-  @Input()
-  public banner: Banner | undefined;
+  private pulls: Pull[] = [];
 
-  @Input()
-  public banners: Banner[] = [];
-
-  identify(index: number, item: Pull) {
-    return item.id;
+  constructor(private honkaiService: HonkaiService) {
   }
+
+  ngOnInit(): void {
+    this.honkaiService.getPulls(false, 'wish-banner')
+      .subscribe(pulls => {
+        if (this.selectedBanner) {
+          this.pulls = pulls.filter(pull => pull.gacha_type == this.selectedBanner?.bannerType)
+        } else {
+          this.pulls = pulls;
+        }
+      });
+  }
+
 
   toggleContent(content: HTMLDivElement) {
     if (content.classList.contains('hidden')) {
@@ -30,22 +40,15 @@ export class WishBannerComponent {
     }
   }
 
-  public updatePulls(pulls: Pull[]) {
-    console.log('q');
-    console.log(pulls);
-    this.pulls.splice(0, this.pulls.length);
-    this.pulls.push(...pulls.sort((a: Pull, b: Pull) => b.id - a.id));
-  }
+  // public updatePulls(pulls: Pull[]) {
+  //   console.log('q');
+  //   console.log(pulls);
+  //   this.pulls.splice(0, this.pulls.length);
+  //   this.pulls.push(...pulls.sort((a: Pull, b: Pull) => b.id - a.id));
+  // }
 
   public lastPity(rank: number): number {
-    // const pity = Utils.lastPityFromRank(this.filteredPulls(), 5);
-    const  pity = this.filteredPulls().findIndex(p=>p.rank_type == rank)
-    console.log("bannerpity", this.banner, this.filteredPulls())
-    console.log(this.pulls.length)
-    // if (pity < 0) {
-    //   return this.pulls.length;
-    // }
-    return pity;
+    return this.pulls.findIndex(p => p.rank_type === rank)
   }
 
   public lastPityFrom(rank: number, index: number): number {
@@ -58,11 +61,15 @@ export class WishBannerComponent {
     // return Ut
   }
 
+  public countPulls(): number {
+    return this.pulls.length
+  }
+
   private filteredPulls() {
-    if (this.banner) {
-      return this.pulls.filter(pull => pull.gacha_type === this.banner?.type);
-    } else {
-      return this.pulls.filter(pull => pull.gacha_type === this.banners[0].type);
-    }
+    // if (this.banner) {
+    //   return this.pulls.filter(pull => pull.gacha_type === this.banner?.type);
+    // } else {
+    //   return this.pulls.filter(pull => pull.gacha_type === this.banners[0].type);
+    // }
   }
 }
